@@ -1,0 +1,41 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+struct data
+{
+	double w, h, r, i;
+	int screenWidth, screenHeight;
+};
+
+RWTexture2D<float4> Result;
+StructuredBuffer<data> buffer;
+
+uint iterations;
+
+[numthreads(24, 24, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+	float4 color = { 0.0f , 0.0f, 0.0f, 0.0f };
+    //int xAdjust = (int)id.x / buffer[0].screenWidth * buffer[0].w;
+	//int yAdjust = (int)id.y / buffer[0].screenHeight * buffer[0].h;
+	//float2 position = float2((id.x / Width), (id.y / Height));
+    // float2 position = float2(((id.x / buffer[0].w), (id.y / buffer[0].h));
+
+    double xAdjust = (double)id.x / buffer[0].screenWidth * buffer[0].w;
+	double yAdjust = (double)id.y / buffer[0].screenHeight * buffer[0].h;
+ 
+	int x = buffer[0].r + xAdjust;
+	int y = buffer[0].i + yAdjust;
+
+    // = (int)(id.x / buffer[0].w) + buffer[0].r;
+    // = (int)(id.y / buffer[0].h) + buffer[0].i;
+
+    if ((int)(x & y) != 0)
+    {
+        color += 1.0f; 
+    }         
+     
+	Result[id.xy] = color;
+}

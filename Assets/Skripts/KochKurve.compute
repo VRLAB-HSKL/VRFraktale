@@ -1,0 +1,64 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+struct data
+{
+	double w, h, r, i;
+	int screenWidth, screenHeight;
+};
+
+RWTexture2D<float4> Result;
+StructuredBuffer<data> buffer;
+float size;
+float moveX;
+float moveY;
+
+[numthreads(24, 24, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+	float3 color = float3(0.0, 0.0, 0.0);
+
+    int increments = (int)buffer[0].i;
+
+    float2 uv = float2(id.x + moveX,  id.y +moveY-800); //moveY - 800 so its 0 -- moveY Default 800 so moving up works
+
+    
+    // Aspect Ratio 1/1
+    float r = 1;
+    float s = 0.866025388240814208984375;
+    float c = 0.5;
+    
+    // normalize
+    float2 U = uv;
+    U = U / float2(4096, 4096);
+        
+    // center
+    U = U - float2(c, c) - float2((s/4.0)*r, 0.0);
+    
+    // fold
+    U = abs(U);
+     
+    for( int i=0; i < increments; i++) {
+        
+    // original
+        // U.y = .7- abs( U *= - mat2( 9, 5.2, -5.2, 9 ) / 6. ).y;
+                
+        // a clockwise rotation by 60 degrees followed by a translation
+        U = mul(float2x2( c, -s, s, c ), U) + U; 
+        
+        // inversion
+        U = -U;
+        
+        // fold?
+        U.y = size - abs(U.y); 
+    }
+    //U *= float2(x, y);
+
+    
+    Result[id.xy] = float4(U.x, U.x, U.x, U.x);
+    
+	//Result[id.xy] = float4(color.x, color.y, color.z, 1.0);
+
+}
