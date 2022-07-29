@@ -16,6 +16,8 @@ MonoBehaviour:
   m_isInstallingOpenVRXRPlugin: 0
   m_ignoreKeys:
   - InitializeonStartup
-  - RunInBackground
-  - ResizableWindow
+  - VirtualRealitySupportedwithOculus
   - DefaultScreenSize
+  - ResizableWindow
+  - ReviewOpenXRProjectValidationIssues
+  - EnableAllFeatureSets
